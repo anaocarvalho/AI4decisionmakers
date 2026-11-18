@@ -15,7 +15,8 @@ search:
     - quantitative analyst
     - statistical analyst
     - analytics
-    - fellow            # think-tank research fellowships (junior)
+    - junior fellow      # e.g. Carnegie junior fellows
+    - research fellow
   # Titles containing any of these are dropped (seniority / wrong field).
   title_exclude:
     - senior

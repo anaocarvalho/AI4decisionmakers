@@ -31,7 +31,7 @@ npm run typecheck  # tsc
 
 ## Milestones
 - [x] M0 Scaffold
-- [ ] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
+- [x] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
 - [ ] M2 Keyless sources (Greenhouse / Lever / Ashby) + dry run
 - [ ] M3 Supabase schema + RLS
 - [ ] M4 Claude scoring + daily GitHub Action
