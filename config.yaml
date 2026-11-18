@@ -1,0 +1,102 @@
+# JobScout configuration — edit freely; validated at startup (packages/core/src/config.ts).
+
+search:
+  # A posting's TITLE must contain at least one of these (case-insensitive).
+  title_keywords:
+    - data analyst
+    - economic analyst
+    - economist
+    - economics
+    - econometric
+    - research analyst
+    - research assistant
+    - research associate
+    - policy analyst
+    - quantitative analyst
+    - statistical analyst
+    - analytics
+    - fellow            # think-tank research fellowships (junior)
+  # Titles containing any of these are dropped (seniority / wrong field).
+  title_exclude:
+    - senior
+    - sr.
+    - sr
+    - lead
+    - principal
+    - staff
+    - director
+    - manager
+    - head of
+    - vice president
+    - vp
+    - chief
+    - iii
+    - iv
+    - software engineer
+    - postdoc
+    - postdoctoral
+    - professor
+    - faculty
+  include_internships: true        # CPT-eligible internships
+  max_years_experience: 2          # drop postings whose minimum required experience exceeds this
+  # Free-text queries used by keyword APIs (Adzuna, JSearch, USAJobs).
+  queries:
+    - entry level data analyst
+    - economic analyst
+    - research assistant economics
+    - policy analyst
+    - econometrics analyst
+    - research analyst think tank
+
+locations:
+  remote_us: true
+  cities:
+    - name: New York, NY
+      aliases: [new york, nyc, manhattan, brooklyn, queens, bronx, staten island]
+  # "Remote" postings mentioning any of these are treated as non-US and dropped.
+  non_us_markers:
+    - canada
+    - united kingdom
+    - uk
+    - europe
+    - emea
+    - apac
+    - latam
+    - india
+    - germany
+    - mexico
+    - brazil
+    - australia
+    - philippines
+    - ireland
+    - netherlands
+    - spain
+    - poland
+
+scoring:
+  model: claude-haiku-5-5          # cheapest per token; scores are short JSON
+  max_jobs_per_run: 150            # hard budget cap on Claude calls per run
+  highlight_threshold: 70          # "high fit" cutoff for the UI and weekly digest
+  sponsorship_penalty: 40          # subtracted from fit when a posting says no sponsorship / citizens only / clearance
+
+tailoring:
+  model: claude-opus-5-5           # one call per job you mark Interested
+
+sources:
+  greenhouse:
+    enabled: true
+    boards: []                     # filled in Milestone 2: [{ company: "...", token: "..." }]
+  lever:
+    enabled: true
+    boards: []
+  ashby:
+    enabled: true
+    boards: []
+  adzuna:
+    enabled: false                 # needs ADZUNA_APP_ID / ADZUNA_APP_KEY
+    results_per_query: 50
+  jsearch:
+    enabled: false                 # needs RAPIDAPI_KEY; free tier ≈ 200 requests/month
+    max_queries_per_run: 8
+  usajobs:
+    enabled: false                 # most federal roles require US citizenship

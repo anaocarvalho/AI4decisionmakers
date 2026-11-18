@@ -1,0 +1,7 @@
+{
+  "name": "@jobscout/fetcher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@jobscout/core": "0.1.0" }
+}

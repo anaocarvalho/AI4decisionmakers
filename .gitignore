@@ -1,0 +1,23 @@
+# dependencies & build output
+node_modules/
+dist/
+.netlify/
+out/
+coverage/
+
+# secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# personal files (resume lives in Supabase / local only; this repo may be public)
+resume.md
+resume.local.md
+exports/
+*.docx
+*.pdf
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
