@@ -1,0 +1,16 @@
+# Netlify build configuration. Values here override the UI's build settings.
+# Milestone 6 replaces the placeholder with the React app (publish = "web/dist", functions, SPA redirect).
+
+[build]
+  command = "npm run typecheck && npm test"   # a deploy fails if tests fail
+  publish = "web/public"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
