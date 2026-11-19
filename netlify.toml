@@ -2,7 +2,8 @@
 # Milestone 6 replaces the placeholder with the React app (publish = "web/dist", functions, SPA redirect).
 
 [build]
-  command = "npm run typecheck && npm test"   # a deploy fails if tests fail
+  # Tests and typecheck run in GitHub Actions CI on every push/PR; Netlify only builds the site.
+  command = "node --version && npm --version && echo 'placeholder site, nothing to build yet'"
   publish = "web/public"
 
 [build.environment]
