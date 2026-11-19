@@ -57,11 +57,41 @@ On GitHub: **Actions → Fetch jobs → Run workflow**. The filtered jobs are at
 5. **Age:** dropped if first published more than `max_age_days` ago.
 6. **Sponsorship:** never dropped; flagged `blocked` / `friendly` / `unknown` (plus E-Verify) and ranked lower when blocked.
 
+## Supabase setup
+
+The database stores jobs, your tracking status, drafts and your resume. Every table has row-level security: a logged-in user can only see and change their own rows, and logged-out visitors get nothing. The daily fetcher writes with the service-role key, which lives only in GitHub Secrets.
+
+1. **Create the project:** [supabase.com/dashboard](https://supabase.com/dashboard) → **New project** → name `JobScout`, region **East US (North Virginia)**. Save the database password in a password manager; JobScout doesn't need it.
+2. **Create the tables:** **SQL Editor** → **New query** → paste all of `supabase/migrations/20261119000000_init.sql` → **Run**. You should see "Success. No rows returned".
+3. **Create your user:** **Authentication → Users → Add user → Create new user** with your email. Tick "Auto Confirm User" and set any password (you'll log in with magic links). Copy the user's **UID**.
+4. **Lock signups:** **Authentication → Sign In / Providers**. Turn **off** "Allow new users to sign up". Leave **Email** enabled. Now only you can log in.
+5. **Add GitHub Secrets** (repo → **Settings → Secrets and variables → Actions → New repository secret**):
+
+   | Secret | Where to find it |
+   |---|---|
+   | `SUPABASE_URL` | Supabase → **Project Settings → Data API** → Project URL |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → **Project Settings → API Keys** → `service_role` (secret) key |
+   | `JOBSCOUT_OWNER_ID` | the UID from step 3 |
+
+6. **Test it:** GitHub → **Actions → Fetch jobs → Run workflow**, tick **Save results to Supabase** → run. Then Supabase → **Table Editor → jobs** shows the rows, and **fetch_runs** has one row per run.
+
+To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm run fetch`.
+
+### Schema at a glance
+| Table | Written by | Purpose |
+|---|---|---|
+| `jobs` | fetcher (posting fields), you (interested, status, notes) | One row per unique posting, unique on `(owner_id, dedupe_key)` |
+| `drafts` | tailoring function (Milestone 7) | Resume bullets + cover letter per job |
+| `profiles` | you | Your resume (Markdown), kept out of git |
+| `fetch_runs` | fetcher | Stats and errors from each daily run |
+
+`supabase/test/rls.test.ts` runs the migration on an in-memory Postgres and checks that one user can't read or change another user's rows.
+
 ## Milestones
 - [x] M0 Scaffold
 - [x] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
 - [x] M2 Keyless sources (Greenhouse / Lever / Ashby) + dry run
-- [ ] M3 Supabase schema + RLS
+- [x] M3 Supabase schema + RLS
 - [ ] M4 Claude scoring + daily GitHub Action
 - [ ] M5 Adzuna / JSearch / USAJobs
 - [ ] M6 Web app on Netlify

@@ -5,6 +5,10 @@ on:
       sources:
         description: "Comma-separated sources to run (blank = all enabled)"
         required: false
+      save:
+        description: "Save results to Supabase (needs the SUPABASE_* and JOBSCOUT_OWNER_ID secrets)"
+        type: boolean
+        default: false
   # Weekday schedule is switched on in Milestone 4, once results are saved to Supabase:
   # schedule:
   #   - cron: "10 12 * * 1-5"   # 12:10 UTC ≈ 7:10 AM Eastern (standard time)
@@ -20,8 +24,15 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Fetch (dry run)
-        run: npm run fetch -- --dry-run ${{ inputs.sources && format('--sources {0}', inputs.sources) || '' }}
+      - name: Fetch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JOBSCOUT_OWNER_ID: ${{ secrets.JOBSCOUT_OWNER_ID }}
+        run: >-
+          npm run fetch --
+          ${{ inputs.save && ' ' || '--dry-run' }}
+          ${{ inputs.sources && format('--sources {0}', inputs.sources) || '' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

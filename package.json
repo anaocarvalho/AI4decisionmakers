@@ -13,9 +13,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "fetch": "tsx fetcher/src/run.ts"
+    "fetch": "tsx --env-file-if-exists=.env fetcher/src/run.ts"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.17",
     "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",

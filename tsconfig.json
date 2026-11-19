@@ -13,5 +13,5 @@
     "allowImportingTsExtensions": false,
     "noEmit": true
   },
-  "include": ["packages/*/src", "packages/*/test", "fetcher/src", "fetcher/test"]
+  "include": ["packages/*/src", "packages/*/test", "fetcher/src", "fetcher/test", "supabase/test"]
 }
