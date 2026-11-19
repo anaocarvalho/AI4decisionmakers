@@ -17,6 +17,18 @@ search:
     - analytics
     - junior fellow      # e.g. Carnegie junior fellows
     - research fellow
+    - researcher
+    - quantitative researcher
+    - data scientist
+    - consulting analyst
+    - consulting associate # economic consulting (CRA, Analysis Group, Cornerstone…)
+    - business analyst
+    - risk analyst
+    - credit analyst
+    - pricing analyst
+    - strategy analyst
+    - market research
+    - survey
   # Titles containing any of these are dropped (seniority / wrong field).
   title_exclude:
     - senior
@@ -40,6 +52,7 @@ search:
     - faculty
   include_internships: true        # CPT-eligible internships
   max_years_experience: 2          # drop postings whose minimum required experience exceeds this
+  max_age_days: 45                 # drop postings first published longer ago than this
   # Free-text queries used by keyword APIs (Adzuna, JSearch, USAJobs).
   queries:
     - entry level data analyst
@@ -84,15 +97,31 @@ tailoring:
   model: claude-opus-5-5           # one call per job you mark Interested
 
 sources:
+  # Public employer job boards (no API key). Token = the slug in the board URL, e.g.
+  # job-boards.greenhouse.io/<token>, jobs.lever.co/<token>, jobs.ashbyhq.com/<token>.
+  # Verified 2026-11-19. Most think tanks on the starter list (Brookings, Urban, RAND, Mathematica,
+  # Abt, NBER, PIIE, CBPP, EPI, BPC, AEI, Cato, CFR, Carnegie, NY Fed, MDRC, Analysis Group,
+  # Cornerstone Research, NERA, Compass Lexecon, Moody's, S&P, Bloomberg) use Workday/iCIMS/Taleo,
+  # which have no public API. They are covered by the Adzuna/JSearch sources (Milestone 5).
   greenhouse:
     enabled: true
-    boards: []                     # filled in Milestone 2: [{ company: "...", token: "..." }]
+    boards:
+      - { company: Charles River Associates, token: charlesriverassociates }
+      - { company: American Institutes for Research, token: americaninstitutesforresearch }
+      - { company: GiveWell, token: givewell }
+      - { company: Affirm, token: affirm }
+      - { company: Chime, token: chime }
+      - { company: Upstart, token: upstart }
   lever:
     enabled: true
-    boards: []
+    boards:
+      - { company: FiscalNote, token: fiscalnote }
   ashby:
     enabled: true
-    boards: []
+    boards:
+      - { company: IDinsight, token: idinsight }
+      - { company: Morning Consult, token: morningconsult }
+      - { company: NerdWallet, token: nerdwallet }
   adzuna:
     enabled: false                 # needs ADZUNA_APP_ID / ADZUNA_APP_KEY
     results_per_query: 50

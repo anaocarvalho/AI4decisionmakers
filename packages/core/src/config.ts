@@ -11,6 +11,7 @@ export const configSchema = z.object({
     title_exclude: z.array(z.string()).default([]),
     include_internships: z.boolean().default(true),
     max_years_experience: z.number().int().min(0).default(2),
+    max_age_days: z.number().int().positive().default(45),
     queries: z.array(z.string()).default([]),
   }),
   locations: z.object({

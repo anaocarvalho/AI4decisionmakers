@@ -24,11 +24,13 @@ describe("processJobs", () => {
         raw({ sourceId: "4", title: "Economic Analyst", description: "5+ years of experience required.", url: "https://x/4" }),
         raw({ sourceId: "5", title: "Policy Analyst", location: "New York, NY", description: "US citizens only.", url: "https://x/5" }),
         raw({ sourceId: "6", title: "Accountant", url: "https://x/6" }),
+        raw({ sourceId: "7", title: "Research Analyst", postedAt: "2019-07-24", url: "https://x/7" }),
       ],
       cfg,
+      new Date("2026-11-15"),
     );
     expect(res.duplicates).toBe(1);
-    expect(res.rejected).toEqual({ title: 1, seniority: 1, experience: 1, location: 1 });
+    expect(res.rejected).toEqual({ title: 1, seniority: 1, experience: 1, location: 1, stale: 1 });
     expect(res.jobs.map((j) => j.title)).toEqual(["Data Analyst", "Policy Analyst"]);
     expect(res.jobs[1]!.sponsorship.status).toBe("blocked");
   });

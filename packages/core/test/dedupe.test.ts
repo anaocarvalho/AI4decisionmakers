@@ -34,9 +34,16 @@ describe("dedupe", () => {
   });
 
   it("merges by canonical URL even when titles differ", () => {
-    const a = buildJob(raw({ title: "Data Analyst", url: "https://jobs.lever.co/x/1?utm=a" }));
+    const a = buildJob(raw({ title: "Data Analyst", url: "https://jobs.lever.co/x/1?utm_source=a" }));
     const b = buildJob(raw({ title: "Data Analyst I", url: "https://jobs.lever.co/x/1/" }));
     expect(dedupe([a, b])).toHaveLength(1);
+  });
+
+  it("does not merge jobs that differ only by an identifying query param (gh_jid)", () => {
+    const a = buildJob(raw({ title: "Data Analyst", url: "https://careers.upstart.com/jobs?gh_jid=1&utm_source=x" }));
+    const b = buildJob(raw({ title: "Policy Analyst", url: "https://careers.upstart.com/jobs?gh_jid=2" }));
+    const c = buildJob(raw({ title: "Data Analyst", url: "https://careers.upstart.com/jobs?gh_jid=1" }));
+    expect(dedupe([a, b, c])).toHaveLength(2);
   });
 
   it("keeps distinct jobs", () => {

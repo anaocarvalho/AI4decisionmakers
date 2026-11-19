@@ -1,0 +1,30 @@
+name: Fetch jobs
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Comma-separated sources to run (blank = all enabled)"
+        required: false
+  # Weekday schedule is switched on in Milestone 4, once results are saved to Supabase:
+  # schedule:
+  #   - cron: "10 12 * * 1-5"   # 12:10 UTC ≈ 7:10 AM Eastern (standard time)
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Fetch (dry run)
+        run: npm run fetch -- --dry-run ${{ inputs.sources && format('--sources {0}', inputs.sources) || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jobs-dry-run
+          path: out/jobs.json
+          if-no-files-found: ignore

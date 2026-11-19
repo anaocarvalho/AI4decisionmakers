@@ -6,6 +6,7 @@ export interface RawJob {
   company: string;
   location: string;           // free text as given ("New York, NY", "Remote - US", ...)
   remote?: boolean;           // set when the source says so explicitly
+  country?: string;           // ISO-ish country code when the source provides one ("US")
   url: string;                // application / posting URL
   description: string;        // plain text or HTML
   postedAt?: string;          // ISO date
@@ -28,4 +29,4 @@ export interface Job extends RawJob {
   minYearsExperience: number | null;
 }
 
-export type RejectReason = "title" | "seniority" | "experience" | "location";
+export type RejectReason = "title" | "seniority" | "experience" | "location" | "stale";

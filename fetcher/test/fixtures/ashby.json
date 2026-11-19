@@ -1,0 +1,54 @@
+{
+ "apiVersion": "1",
+ "jobs": [
+  {
+   "id": "37625d71-3859-401f-9d7d-ddec218db3b8",
+   "title": "Economist (Consultant)",
+   "location": "Manila, Philippines",
+   "secondaryLocations": [],
+   "isRemote": true,
+   "workplaceType": "Hybrid",
+   "jobUrl": "https://jobs.ashbyhq.com/idinsight/37625d71-3859-401f-9d7d-ddec218db3b8",
+   "applyUrl": "https://jobs.ashbyhq.com/idinsight/37625d71-3859-401f-9d7d-ddec218db3b8/application",
+   "publishedAt": "2026-09-28T09:48:05.214+00:00",
+   "employmentType": "PartTime",
+   "isListed": true,
+   "descriptionPlain": "ABOUT IDINSIGHT\n\n\n\nWe're a global data and evidence advisory, working with governments, philanthropies, and non-profits to improve lives at scale, using technology and AI where they can deliver the most impact.\n\n\n\nIDinsight is a global nonprofit that equips leaders with the data, evidence and technology to improve lives at scale. We partner with governments, NGOs, multilaterals, and funders to support decisions at every stage of their impact journey \u2013 from bold pilots to nationwide scale-ups. Our teams bring rigorous evidence and practical insights so leaders can make informed decisions that truly change lives. With our partners, we are pioneering the next frontier of social impact, where data and technology accelerate progress for millions. We help leaders overcome the three main barriers"
+  },
+  {
+   "id": "eb8a4368-8e33-4ef4-b5cb-7c2bf26f0841",
+   "title": "Associate / Senior Associate ",
+   "location": "Dakar, Senegal",
+   "secondaryLocations": [
+    {
+     "location": "Abuja, Nigeria",
+     "address": {
+      "postalAddress": {
+       "addressCountry": "Nigeria",
+       "addressLocality": "Abuja"
+      }
+     }
+    },
+    {
+     "location": "Rabat, Morocco",
+     "address": {
+      "postalAddress": {
+       "addressRegion": "Rabat-Sal\u00e9-K\u00e9nitra",
+       "streetAddress": "Appartement 5, 3\u1d49 \u00e9tage, Immeuble 74, Rue Oued Ziz, Agdal",
+       "addressCountry": "Morocco",
+       "addressLocality": "Rabat"
+      }
+     }
+    }
+   ],
+   "isRemote": true,
+   "workplaceType": "Hybrid",
+   "jobUrl": "https://jobs.ashbyhq.com/idinsight/eb8a4368-8e33-4ef4-b5cb-7c2bf26f0841",
+   "applyUrl": "https://jobs.ashbyhq.com/idinsight/eb8a4368-8e33-4ef4-b5cb-7c2bf26f0841/application",
+   "publishedAt": "2026-10-04T22:16:42.916+00:00",
+   "employmentType": "FullTime",
+   "isListed": true,
+   "descriptionPlain": "ABOUT IDINSIGHT\n\nWe're a global data and evidence advisory, working with governments, philanthropies, and non-profits to improve lives at scale, using technology and AI where they can deliver the most impact.\n\n\u00a0\n\nIDinsight is a global nonprofit that equips leaders with the data, evidence, and technology to improve lives at scale. We partner with governments, NGOs, multilaterals, and funders to support decisions at every stage of their impact journey \u2013 from bold pilots to nationwide scale-ups. Our teams bring rigorous evidence and practical insights so leaders can make informed decisions that truly change lives. With our partners, we are pioneering the next frontier of social impact, where data and technology accelerate progress for millions. We help leaders overcome the three main barriers"
+  }
+ ]
+}

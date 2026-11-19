@@ -30,12 +30,12 @@ export interface PipelineResult {
 }
 
 /** Normalize → dedupe → filter. Sponsorship-blocked jobs are kept (flagged, ranked lower), not dropped. */
-export function processJobs(raws: RawJob[], cfg: Config): PipelineResult {
+export function processJobs(raws: RawJob[], cfg: Config, now = new Date()): PipelineResult {
   const built = raws.map(buildJob);
   const unique = dedupe(built);
-  const rejected: Record<RejectReason, number> = { title: 0, seniority: 0, experience: 0, location: 0 };
+  const rejected: Record<RejectReason, number> = { title: 0, seniority: 0, experience: 0, location: 0, stale: 0 };
   const jobs = unique.filter((job) => {
-    const reason = rejectReason(job, cfg);
+    const reason = rejectReason(job, cfg, now);
     if (reason) rejected[reason]++;
     return !reason;
   });
