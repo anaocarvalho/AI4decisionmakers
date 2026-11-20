@@ -18,6 +18,8 @@ export interface SourceContext {
  */
 export interface JobSource {
   name: string;
+  /** Environment variables (API keys) the source needs. If any is missing the source is skipped with a notice. */
+  requiredEnv?: string[];
   isEnabled(cfg: Config): boolean;
   fetch(ctx: SourceContext): Promise<RawJob[]>;
 }

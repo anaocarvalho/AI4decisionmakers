@@ -39,6 +39,7 @@ async function main() {
   log.info(`  rejected: ${Object.entries(rejected).map(([k, v]) => `${k}=${v}`).join(" ")}`);
   log.info(`  kept: ${jobs.length} (sponsorship-blocked: ${jobs.filter((j) => j.sponsorship.status === "blocked").length})`);
   if (collected.errors.length) log.warn(`${collected.errors.length} source error(s); see above`);
+  for (const s of collected.sourcesSkipped) log.info(`  skipped ${s.name}: ${s.reason}`);
 
   if (values["dry-run"]) {
     await mkdir(values.out.replace(/\/[^/]+$/, "") || ".", { recursive: true });

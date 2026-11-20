@@ -13,6 +13,7 @@ export interface CollectResult {
   errors: SourceError[];
   sourcesRun: string[];
   sourcesFailed: string[];  // sources that threw entirely or produced only errors
+  sourcesSkipped: { name: string; reason: string }[];
 }
 
 const USER_AGENT = "JobScout/0.1 (personal job tracker; respects public API terms)";
@@ -31,17 +32,24 @@ export async function collect(
   sources: JobSource[],
   opts: { cfg: Config; http: HttpGet; log: Logger; env?: Record<string, string | undefined>; only?: string[] },
 ): Promise<CollectResult> {
-  const result: CollectResult = { raws: [], perSource: {}, errors: [], sourcesRun: [], sourcesFailed: [] };
+  const result: CollectResult = { raws: [], perSource: {}, errors: [], sourcesRun: [], sourcesFailed: [], sourcesSkipped: [] };
   const selected = sources.filter((s) => s.isEnabled(opts.cfg) && (!opts.only?.length || opts.only.includes(s.name)));
+  const env = opts.env ?? {};
 
   for (const source of selected) {
+    const missing = (source.requiredEnv ?? []).filter((k) => !env[k]);
+    if (missing.length) {
+      result.sourcesSkipped.push({ name: source.name, reason: `missing ${missing.join(", ")}` });
+      opts.log.info(`▷ ${source.name}: skipped (add ${missing.join(", ")} to enable)`);
+      continue;
+    }
     result.sourcesRun.push(source.name);
     let errorsHere = 0;
     const ctx: SourceContext = {
       cfg: opts.cfg,
       http: opts.http,
       log: opts.log,
-      env: opts.env ?? {},
+      env,
       reportError: (where, err) => {
         errorsHere++;
         const message = err instanceof Error ? err.message : String(err);

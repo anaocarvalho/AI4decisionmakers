@@ -122,11 +122,13 @@ sources:
       - { company: IDinsight, token: idinsight }
       - { company: Morning Consult, token: morningconsult }
       - { company: NerdWallet, token: nerdwallet }
+  # Keyword APIs: each runs every search.queries entry in NYC and as remote.
+  # They are skipped automatically until their keys exist as GitHub Secrets.
   adzuna:
-    enabled: false                 # needs ADZUNA_APP_ID / ADZUNA_APP_KEY
+    enabled: true                  # needs ADZUNA_APP_ID + ADZUNA_APP_KEY (free: developer.adzuna.com)
     results_per_query: 50
   jsearch:
-    enabled: false                 # needs RAPIDAPI_KEY; free tier ≈ 200 requests/month
+    enabled: true                  # needs RAPIDAPI_KEY; free tier ≈ 200 requests/month → 8/day, rotating queries
     max_queries_per_run: 8
   usajobs:
-    enabled: false                 # most federal roles require US citizenship
+    enabled: false                 # needs USAJOBS_API_KEY + USAJOBS_EMAIL; federal roles require US citizenship

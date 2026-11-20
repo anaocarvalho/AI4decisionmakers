@@ -45,7 +45,11 @@ On GitHub: **Actions → Fetch jobs → Run workflow**. The filtered jobs are at
 | Source | Key needed | Notes |
 |---|---|---|
 | Greenhouse, Lever, Ashby | none | Public employer boards. Add employers in `config.yaml → sources.<name>.boards`. The token is the slug in the board URL. |
-| Adzuna, JSearch, USAJobs | yes | Milestone 5 |
+| Adzuna | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Free at [developer.adzuna.com](https://developer.adzuna.com). Returns description snippets only. |
+| JSearch (Google for Jobs) | `RAPIDAPI_KEY` | Subscribe to the free JSearch plan on [rapidapi.com](https://rapidapi.com) (about 200 requests/month). Runs 8 queries a day, rotating through `search.queries`. |
+| USAJobs | `USAJOBS_API_KEY`, `USAJOBS_EMAIL` | Free at [developer.usajobs.gov](https://developer.usajobs.gov). **Off by default:** federal jobs require U.S. citizenship, so they are all flagged as blocked. |
+
+Keyed sources are skipped automatically until their GitHub Secrets exist, so you enable one just by adding its keys. Keyword sources search each `search.queries` entry in NYC and as remote.
 
 **Adding a source:** create `fetcher/src/sources/<name>.ts` implementing `JobSource` (`name`, `isEnabled(cfg)`, `fetch(ctx)` → `RawJob[]`), register it in `fetcher/src/sources/index.ts`, add a block under `sources:` in `config.yaml` (plus its schema in `packages/core/src/config.ts`), and add a fixture-based test in `fetcher/test/`. Use `ctx.http` (retries + rate limit) and `ctx.reportError` for partial failures. A failing source never stops the others.
 
@@ -107,7 +111,7 @@ To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm
 - [x] M2 Keyless sources (Greenhouse / Lever / Ashby) + dry run
 - [x] M3 Supabase schema + RLS
 - [x] M4 Claude scoring + daily GitHub Action
-- [ ] M5 Adzuna / JSearch / USAJobs
+- [x] M5 Adzuna / JSearch / USAJobs
 - [ ] M6 Web app on Netlify
 - [ ] M7 Tailoring function
 - [ ] M8 Weekly digest
