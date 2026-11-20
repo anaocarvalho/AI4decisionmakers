@@ -1,13 +1,29 @@
-# Netlify build configuration. Values here override the UI's build settings.
-# Milestone 6 replaces the placeholder with the React app (publish = "web/dist", functions, SPA redirect).
+# Netlify configuration. File values override the UI's build settings.
+# Base directory must be empty (repo root) in Project configuration → Build & deploy.
 
 [build]
-  # Tests and typecheck run in GitHub Actions CI on every push/PR; Netlify only builds the site.
-  command = "node --version && npm --version && echo 'placeholder site, nothing to build yet'"
-  publish = "web/public"
+  command = "npm run build"          # builds web/ (tests + typecheck run in GitHub Actions CI)
+  publish = "web/dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+
+# `netlify dev` → http://localhost:8888 serves the Vite app and the functions together, with env vars.
+[dev]
+  framework = "#custom"
+  command = "npm run dev -w @jobscout/web"
+  targetPort = 5173
+  port = 8888
+
+# Single-page app: unknown paths (e.g. the magic-link return URL) serve index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/*"
@@ -15,3 +31,5 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"

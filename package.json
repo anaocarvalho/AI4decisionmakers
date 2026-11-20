@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "fetcher"
+    "fetcher",
+    "web"
   ],
   "engines": {
     "node": ">=20"
@@ -12,9 +13,11 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p web/tsconfig.json",
     "fetch": "tsx --env-file-if-exists=.env fetcher/src/run.ts",
-    "resume:upload": "tsx --env-file-if-exists=.env fetcher/src/upload-resume.ts"
+    "resume:upload": "tsx --env-file-if-exists=.env fetcher/src/upload-resume.ts",
+    "build": "npm run build -w @jobscout/web",
+    "dev": "netlify dev"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.17",

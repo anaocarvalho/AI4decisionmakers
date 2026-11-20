@@ -105,6 +105,53 @@ To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm
 
 `supabase/test/rls.test.ts` runs the migration on an in-memory Postgres and checks that one user can't read or change another user's rows.
 
+## Web app (Netlify)
+
+**Stack:** React + Vite, built to static files in `web/dist`, plus Netlify Functions in `netlify/functions`.
+
+**Why not Next.js?** The app is a private, login-only tracker, so server rendering and SEO buy nothing. Supabase (with RLS) and one Netlify Function cover the backend. A static Vite build deploys faster and avoids Next's runtime adapter on Netlify.
+
+**What it does:**
+- **Jobs tab:** a table with fit score, title, company, location/remote, source, posted date, sponsorship flag, status and link. The "★" column is the Interested checkbox; ticking it moves New → Interested.
+- **Filters:** status, Remote/NYC, source, minimum score, hide no-sponsorship, interested-only, and text search. Click a column header to sort. The pipeline chips at the top count each status, and clicking one filters to it.
+- **Job panel:** click a title to see the rationale, sponsorship evidence, description and notes, plus an **Open application ↗** button. JobScout never submits anything.
+- **Resume tab:** paste your resume. It is used for scoring and tailoring.
+
+### Netlify setup
+1. **Import from Git** (already done): Netlify → **Add new project → Import an existing project → GitHub** → this repo.
+2. **Project configuration → Build & deploy → Build settings:** leave **Base directory** empty. `netlify.toml` sets the build command `npm run build`, publish `web/dist`, and functions `netlify/functions`.
+3. **Branches and deploy contexts:** **Production branch = `main`**. Deploy previews: "Any pull request against your production branch".
+4. **Project configuration → Environment variables** (scope: all, or Builds + Functions):
+
+   | Key | Value | Secret? |
+   |---|---|---|
+   | `VITE_SUPABASE_URL` | `https://<project-ref>.supabase.co` | no. It's public and baked into the browser bundle |
+   | `VITE_SUPABASE_ANON_KEY` | Supabase → Project Settings → API Keys → **publishable** key (`sb_publishable_…`) | no. It's public and protected by RLS |
+   | `ANTHROPIC_API_KEY` | from console.anthropic.com | **yes**. Tick "Contains secret values", scope **Functions only** (Milestone 7) |
+
+   **Never** put `SUPABASE_SERVICE_ROLE_KEY` in Netlify. It belongs only in GitHub Secrets.
+5. **Supabase → Authentication → URL Configuration:**
+   - **Site URL** = `https://<your-site>.netlify.app`.
+   - **Redirect URLs:** add `https://<your-site>.netlify.app/**`, `https://*--<your-site>.netlify.app/**` (deploy previews) and `http://localhost:8888/**` (local).
+6. Trigger a deploy and open the site. Sign in with your email, then click the magic link.
+
+### Where each secret lives
+| Secret | GitHub Secrets (fetcher) | Netlify env (site + functions) | Browser |
+|---|---|---|---|
+| Supabase URL | ✅ `SUPABASE_URL` | ✅ `VITE_SUPABASE_URL` | ✅ (public) |
+| Supabase publishable/anon key | | ✅ `VITE_SUPABASE_ANON_KEY` | ✅ (public, RLS-protected) |
+| Supabase **service-role** key | ✅ | ❌ never | ❌ never |
+| Anthropic API key | ✅ (scoring) | ✅ Functions scope (tailoring) | ❌ never |
+| Job API keys (Adzuna, RapidAPI, USAJobs) | ✅ | ❌ | ❌ |
+
+### Local development
+```bash
+npm install -g netlify-cli   # once
+netlify link                 # once: connect this folder to your Netlify project
+netlify dev                  # http://localhost:8888, serving the app + functions with Netlify env vars
+```
+For the UI alone, `npm run dev -w @jobscout/web` with a `web/.env.local` file containing `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+
 ## Milestones
 - [x] M0 Scaffold
 - [x] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
@@ -112,6 +159,6 @@ To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm
 - [x] M3 Supabase schema + RLS
 - [x] M4 Claude scoring + daily GitHub Action
 - [x] M5 Adzuna / JSearch / USAJobs
-- [ ] M6 Web app on Netlify
+- [x] M6 Web app on Netlify
 - [ ] M7 Tailoring function
 - [ ] M8 Weekly digest
