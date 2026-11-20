@@ -57,6 +57,20 @@ On GitHub: **Actions → Fetch jobs → Run workflow**. The filtered jobs are at
 5. **Age:** dropped if first published more than `max_age_days` ago.
 6. **Sponsorship:** never dropped; flagged `blocked` / `friendly` / `unknown` (plus E-Verify) and ranked lower when blocked.
 
+## Fit scoring (Claude)
+
+Each new job that passes the filters gets one call to **Claude Haiku 5.5** (`scoring.model` in `config.yaml`) at low effort. The call returns a 0–100 fit score, a one-line rationale, and whether the role is realistic at 0–2 years of experience. Your resume sits in a fixed system prompt so it can be prompt-cached.
+
+- **Ranking:** `rank_score` = fit score, minus `sponsorship_penalty` (40) for "no sponsorship / citizens only / clearance" postings, plus 5 for OPT-friendly, plus 2 for E-Verify.
+- **Budget:** at most `scoring.max_jobs_per_run` (150) calls per run, newest first. Unscored jobs carry over to the next run.
+- **Cost:** about $0.0005 per job, so a typical day costs about a cent.
+- **Failures:** a bad key or empty credit stops scoring for that run, but the fetch itself still succeeds.
+- **Resume:** paste it on the **Resume** page of the web app, or run `npm run resume:upload`, which pushes your local, gitignored `resume.md`.
+
+Add the GitHub Secret `ANTHROPIC_API_KEY`, from [console.anthropic.com](https://console.anthropic.com) → API Keys.
+
+The workflow runs **weekdays at 12:10 UTC** (7:10 AM Eastern). You can also start it by hand from **Actions → Fetch jobs → Run workflow**.
+
 ## Supabase setup
 
 The database stores jobs, your tracking status, drafts and your resume. Every table has row-level security: a logged-in user can only see and change their own rows, and logged-out visitors get nothing. The daily fetcher writes with the service-role key, which lives only in GitHub Secrets.
@@ -92,7 +106,7 @@ To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm
 - [x] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
 - [x] M2 Keyless sources (Greenhouse / Lever / Ashby) + dry run
 - [x] M3 Supabase schema + RLS
-- [ ] M4 Claude scoring + daily GitHub Action
+- [x] M4 Claude scoring + daily GitHub Action
 - [ ] M5 Adzuna / JSearch / USAJobs
 - [ ] M6 Web app on Netlify
 - [ ] M7 Tailoring function

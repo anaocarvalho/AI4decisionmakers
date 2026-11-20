@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Job } from "@jobscout/core";
+import type { ScoreStore, ScoreUpdate, UnscoredJob } from "./scoring.js";
 
 /** Columns the fetcher owns. Your tracking fields (interested, status, notes) are never sent, so upserts can't overwrite them. */
 export interface JobRow {
@@ -80,7 +81,7 @@ export async function saveJobs(store: JobStore, jobs: Job[], ownerId: string, no
   return { inserted: newKeys.length, updated: rows.length - newKeys.length, newKeys };
 }
 
-export class SupabaseJobStore implements JobStore {
+export class SupabaseJobStore implements JobStore, ScoreStore {
   constructor(private db: SupabaseClient) {}
 
   static fromEnv(env: Record<string, string | undefined>): SupabaseJobStore {
@@ -100,6 +101,37 @@ export class SupabaseJobStore implements JobStore {
   async upsert(rows: JobRow[]): Promise<void> {
     const { error } = await this.db.from("jobs").upsert(rows, { onConflict: "owner_id,dedupe_key" });
     if (error) throw new Error(`Supabase upsert failed: ${error.message}`);
+  }
+
+  /** Newest unscored postings first, so the per-run budget goes to fresh jobs. */
+  async unscored(ownerId: string, limit: number): Promise<UnscoredJob[]> {
+    const { data, error } = await this.db
+      .from("jobs")
+      .select("id,title,company,location,description,sponsorship_status,sponsorship_reasons,everify")
+      .eq("owner_id", ownerId)
+      .is("fit_score", null)
+      .order("first_seen_at", { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(`Supabase select unscored failed: ${error.message}`);
+    return (data ?? []) as UnscoredJob[];
+  }
+
+  async saveScore(id: string, update: ScoreUpdate): Promise<void> {
+    const { error } = await this.db.from("jobs").update(update).eq("id", id);
+    if (error) throw new Error(`Supabase score update failed: ${error.message}`);
+  }
+
+  /** Resume Markdown from the profiles table (edited in the web app). */
+  async resume(ownerId: string): Promise<string | null> {
+    const { data, error } = await this.db.from("profiles").select("resume_md").eq("user_id", ownerId).maybeSingle();
+    if (error) throw new Error(`Supabase profile read failed: ${error.message}`);
+    const md = (data as { resume_md?: string } | null)?.resume_md?.trim();
+    return md ? md : null;
+  }
+
+  async uploadResume(ownerId: string, resumeMd: string): Promise<void> {
+    const { error } = await this.db.from("profiles").upsert({ user_id: ownerId, resume_md: resumeMd });
+    if (error) throw new Error(`Supabase profile upsert failed: ${error.message}`);
   }
 
   async recordRun(run: RunRecord): Promise<void> {

@@ -6,9 +6,12 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { loadConfig, processJobs } from "@jobscout/core";
+import { readFile } from "node:fs/promises";
+import Anthropic from "@anthropic-ai/sdk";
+import { createClaudeScorer, loadConfig, processJobs } from "@jobscout/core";
 import { collect, createHttp } from "./collect.js";
 import { createLogger } from "./log.js";
+import { scoreUnscored, type ScoringResult } from "./scoring.js";
 import { saveJobs, SupabaseJobStore } from "./store.js";
 import { ALL_SOURCES } from "./sources/index.js";
 
@@ -16,6 +19,7 @@ async function main() {
   const { values } = parseArgs({
     options: {
       "dry-run": { type: "boolean", default: false },
+      "no-score": { type: "boolean", default: false },
       sources: { type: "string" },
       config: { type: "string", default: "config.yaml" },
       out: { type: "string", default: "out/jobs.json" },
@@ -47,10 +51,30 @@ async function main() {
     const store = SupabaseJobStore.fromEnv(process.env);
     const saved = await saveJobs(store, jobs, ownerId);
     log.info(`Saved to Supabase: ${saved.inserted} new, ${saved.updated} updated`);
+
+    let scoring: ScoringResult | { skipped: string } = { skipped: "" };
+    const resumeMd = (await store.resume(ownerId)) ?? (await readFile("resume.md", "utf8").catch(() => null));
+    if (values["no-score"]) scoring = { skipped: "--no-score" };
+    else if (!process.env.ANTHROPIC_API_KEY) scoring = { skipped: "ANTHROPIC_API_KEY not set" };
+    else if (!resumeMd) scoring = { skipped: "no resume: paste it on the Resume page of the web app" };
+    else {
+      scoring = await scoreUnscored({
+        store,
+        cfg,
+        ownerId,
+        log,
+        score: createClaudeScorer({ resumeMd, model: cfg.scoring.model }),
+        isFatal: (e) =>
+          e instanceof Anthropic.AuthenticationError ||
+          e instanceof Anthropic.PermissionDeniedError ||
+          (e instanceof Anthropic.BadRequestError && /credit|billing/i.test(e.message)),
+      });
+    }
+    if ("skipped" in scoring && scoring.skipped) log.warn(`Scoring skipped: ${scoring.skipped}`);
     await store.recordRun({
       ownerId,
       startedAt,
-      stats: { fetched: collected.raws.length, perSource: collected.perSource, duplicates, rejected, kept: jobs.length, inserted: saved.inserted, updated: saved.updated },
+      stats: { fetched: collected.raws.length, perSource: collected.perSource, duplicates, rejected, kept: jobs.length, inserted: saved.inserted, updated: saved.updated, scoring },
       errors: collected.errors,
     }).catch((err) => log.error("could not record run:", err)); // logging the run must not fail the run
   }

@@ -1,22 +1,25 @@
 name: Fetch jobs
 on:
+  schedule:
+    - cron: "10 12 * * 1-5"   # weekdays 12:10 UTC = 7:10 AM Eastern (8:10 AM during daylight time)
   workflow_dispatch:
     inputs:
+      save:
+        description: "Save to Supabase and score with Claude (unticked = dry run)"
+        type: boolean
+        default: true
       sources:
         description: "Comma-separated sources to run (blank = all enabled)"
         required: false
-      save:
-        description: "Save results to Supabase (needs the SUPABASE_* and JOBSCOUT_OWNER_ID secrets)"
-        type: boolean
-        default: false
-  # Weekday schedule is switched on in Milestone 4, once results are saved to Supabase:
-  # schedule:
-  #   - cron: "10 12 * * 1-5"   # 12:10 UTC ≈ 7:10 AM Eastern (standard time)
+
+concurrency:
+  group: fetch-jobs
+  cancel-in-progress: false
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,14 +27,20 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Fetch
+      - name: Fetch, save and score
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JOBSCOUT_OWNER_ID: ${{ secrets.JOBSCOUT_OWNER_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          USAJOBS_API_KEY: ${{ secrets.USAJOBS_API_KEY }}
+          USAJOBS_EMAIL: ${{ secrets.USAJOBS_EMAIL }}
         run: >-
           npm run fetch --
-          ${{ inputs.save && ' ' || '--dry-run' }}
+          ${{ (github.event_name == 'schedule' || inputs.save) && ' ' || '--dry-run' }}
           ${{ inputs.sources && format('--sources {0}', inputs.sources) || '' }}
       - uses: actions/upload-artifact@v4
         if: always()

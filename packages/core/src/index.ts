@@ -8,3 +8,5 @@ export * from "./dedupe.js";
 export * from "./pipeline.js";
 export * from "./rank.js";
 export * from "./http.js";
+export * from "./claude/score.js";
+export * from "./claude/tailor.js";

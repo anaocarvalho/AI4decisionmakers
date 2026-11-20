@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
     "@jobscout/core": "0.1.0",
     "@supabase/supabase-js": "^2.119.2"
   }
