@@ -135,6 +135,15 @@ To run the save locally, copy `.env.example` to `.env`, fill it in, and run `npm
    - **Redirect URLs:** add `https://<your-site>.netlify.app/**`, `https://*--<your-site>.netlify.app/**` (deploy previews) and `http://localhost:8888/**` (local).
 6. Trigger a deploy and open the site. Sign in with your email, then click the magic link.
 
+### Tailored materials (Netlify Background Function)
+1. Tick **Interested** on a job and open it.
+2. Click **Draft resume bullets + cover letter**. The app creates a `drafts` row (`pending`) and calls `POST /.netlify/functions/tailor` with your login token.
+3. Netlify answers `202` at once and the function keeps running in the background (up to 15 minutes, which avoids the 10–26 s limit on normal functions). It uses **your** Supabase session, so RLS applies and no service-role key exists on Netlify. It sends the job description and your resume to **Claude Opus 5.5**, then writes the bullets and the letter to the draft.
+4. The app watches the draft through Supabase Realtime, polling every 5 s as a backup. When the draft is ready the job moves to **Materials drafted**.
+5. Edit, **Copy**, or export as **DOCX** or **PDF** (the PDF uses the browser's print dialog → "Save as PDF"). Then click **Open application ↗** and apply yourself.
+
+The prompt forbids inventing facts and mentioning visa status. Server-side refusal fallbacks are enabled (`fallbacks: "default"`), so if Opus declines a request it's retried on a fallback model. Each draft costs a few cents. Function code: `netlify/functions/tailor/`. The logic is tested in `netlify/test/tailor.test.ts`.
+
 ### Where each secret lives
 | Secret | GitHub Secrets (fetcher) | Netlify env (site + functions) | Browser |
 |---|---|---|---|
@@ -160,5 +169,5 @@ For the UI alone, `npm run dev -w @jobscout/web` with a `web/.env.local` file co
 - [x] M4 Claude scoring + daily GitHub Action
 - [x] M5 Adzuna / JSearch / USAJobs
 - [x] M6 Web app on Netlify
-- [ ] M7 Tailoring function
+- [x] M7 Tailoring function
 - [ ] M8 Weekly digest

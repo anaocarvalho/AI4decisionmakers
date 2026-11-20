@@ -94,7 +94,9 @@ scoring:
   sponsorship_penalty: 40          # subtracted from fit when a posting says no sponsorship / citizens only / clearance
 
 tailoring:
-  model: claude-opus-5-5           # one call per job you mark Interested
+  # Used by the Netlify function (one call each time you click "Draft"). The function can't read this
+  # file at runtime, so it defaults to the same value; override with the TAILOR_MODEL Netlify env var.
+  model: claude-opus-5-5
 
 sources:
   # Public employer job boards (no API key). Token = the slug in the board URL, e.g.
