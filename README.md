@@ -8,7 +8,7 @@ A personal job-application assistant for entry-level, OPT/CPT-friendly roles: da
 - **Tailoring:** on demand, a Netlify Background Function drafts resume bullets and a cover letter.
 - **Human in the loop:** the app never submits applications.
 
-> Status: built milestone by milestone. See the checklist at the bottom.
+> Status: all milestones built. Setup checklist below.
 
 ## Repository layout
 
@@ -161,6 +161,32 @@ netlify dev                  # http://localhost:8888, serving the app + function
 ```
 For the UI alone, `npm run dev -w @jobscout/web` with a `web/.env.local` file containing `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
+## Weekly digest (GitHub Issue)
+
+Every Monday at 12:40 UTC, `.github/workflows/weekly-digest.yml` opens an issue labeled `jobscout-digest` with:
+- new jobs this week
+- the top `digest.top_n` jobs scoring at least `scoring.highlight_threshold`, with their rationale and sponsorship flag
+- applications this week
+- pipeline counts by status
+
+It uses the built-in `GITHUB_TOKEN`, so there's nothing to add.
+
+**Privacy:** issues on a public repo are public, so the digest is **skipped while the repo is public**. Make the repo private, or set `digest.allow_public_repo: true`.
+
+Optional: add a repository **variable** (not a secret) `JOBSCOUT_SITE_URL` = your Netlify URL, so the issue links to the tracker. Run it by hand from **Actions → Weekly digest → Run workflow**, or locally with `npm run digest`, which prints the digest instead of posting it.
+
+## All setup in one checklist
+| Where | Name | Needed for |
+|---|---|---|
+| GitHub → Settings → Secrets → Actions | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JOBSCOUT_OWNER_ID` | fetcher, digest |
+| GitHub secret | `ANTHROPIC_API_KEY` | fit scoring |
+| GitHub secrets (optional) | `ADZUNA_APP_ID` + `ADZUNA_APP_KEY`, `RAPIDAPI_KEY`, `USAJOBS_API_KEY` + `USAJOBS_EMAIL` | extra sources |
+| GitHub → Settings → Variables → Actions (optional) | `JOBSCOUT_SITE_URL` | link in digest |
+| Netlify → Environment variables | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | web app |
+| Netlify → Environment variables (secret, Functions scope) | `ANTHROPIC_API_KEY` | tailoring |
+| Supabase → Authentication | signups **off**; Site URL + redirect URLs | login |
+| Web app → Resume tab | paste resume | scoring + tailoring |
+
 ## Milestones
 - [x] M0 Scaffold
 - [x] M1 Core logic (normalize, dedupe, filters, sponsorship flags, retry)
@@ -170,4 +196,4 @@ For the UI alone, `npm run dev -w @jobscout/web` with a `web/.env.local` file co
 - [x] M5 Adzuna / JSearch / USAJobs
 - [x] M6 Web app on Netlify
 - [x] M7 Tailoring function
-- [ ] M8 Weekly digest
+- [x] M8 Weekly digest

@@ -98,6 +98,11 @@ tailoring:
   # file at runtime, so it defaults to the same value; override with the TAILOR_MODEL Netlify env var.
   model: claude-opus-5-5
 
+digest:
+  enabled: true                    # weekly GitHub Issue: new high-fit jobs + pipeline counts
+  top_n: 20
+  allow_public_repo: false         # issues on a public repo are public; the digest is skipped unless the repo is private
+
 sources:
   # Public employer job boards (no API key). Token = the slug in the board URL, e.g.
   # job-boards.greenhouse.io/<token>, jobs.lever.co/<token>, jobs.ashbyhq.com/<token>.

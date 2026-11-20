@@ -17,7 +17,8 @@
     "fetch": "tsx --env-file-if-exists=.env fetcher/src/run.ts",
     "resume:upload": "tsx --env-file-if-exists=.env fetcher/src/upload-resume.ts",
     "build": "npm run build -w @jobscout/web",
-    "dev": "netlify dev"
+    "dev": "netlify dev",
+    "digest": "tsx --env-file-if-exists=.env fetcher/src/run-digest.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.17",

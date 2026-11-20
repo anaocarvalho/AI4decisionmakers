@@ -26,6 +26,13 @@ export const configSchema = z.object({
     sponsorship_penalty: z.number().min(0).max(100).default(40),
   }),
   tailoring: z.object({ model: z.string().default("claude-opus-5-5") }),
+  digest: z
+    .object({
+      enabled: z.boolean().default(true),
+      top_n: z.number().int().positive().default(20),
+      allow_public_repo: z.boolean().default(false),
+    })
+    .default({ enabled: true, top_n: 20, allow_public_repo: false }),
   sources: z.object({
     greenhouse: boardSource.default({ enabled: false, boards: [] }),
     lever: boardSource.default({ enabled: false, boards: [] }),
